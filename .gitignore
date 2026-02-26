@@ -1,0 +1,63 @@
+# Gradle
+.gradle/
+!build/libs/FileFilterUtility-*.jar
+build/
+logs/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS (Spring Tool Suite) ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### GigaIde ###
+.gigaide
+
+# Операционные системы
+# MacOS
+.DS_Store
+# Windows
+Thumbs.db
+
+# Логи
+*.log
+
+# Игнорируем все .txt файлы (если не хотите, чтобы их отслеживали, измените это правило)
+*.txt
+# Или только для определенных файлов:
+!/src/main/resources/*.txt
+
+# Исключаем скомпилированные файлы .class
+*.class
+
+# Не игнорируем исходники Java
+!**/src/main/**/*.java
+!**/src/test/**/*.java
