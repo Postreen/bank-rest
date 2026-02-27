@@ -12,33 +12,31 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("dev")
-@EnableConfigurationProperties(DevAdminProperties.class)
+@EnableConfigurationProperties(DevUsersProperties.class)
 @RequiredArgsConstructor
-public class DevAdminSeeder implements CommandLineRunner {
+public class DevUsersSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final DevAdminProperties props;
+    private final DevUsersProperties props;
 
     @Override
     public void run(String... args) {
-        if (!props.enabled()) {
-            return;
-        }
+        if (!props.enabled()) return;
 
-        String username = props.username();
-        String rawPassword = props.password();
+        createIfMissing(props.adminUsername(), props.adminPassword(), Role.ADMIN);
+        createIfMissing(props.userUsername(), props.userPassword(), Role.USER);
+    }
 
-        if (userRepository.existsByUsername(username)) {
-            return;
-        }
+    private void createIfMissing(String username, String rawPassword, Role role) {
+        if (userRepository.existsByUsername(username)) return;
 
-        UserEntity admin = new UserEntity();
-        admin.setUsername(username);
-        admin.setPasswordHash(passwordEncoder.encode(rawPassword));
-        admin.setRole(Role.ADMIN);
-        admin.setEnabled(true);
+        UserEntity u = new UserEntity();
+        u.setUsername(username);
+        u.setPasswordHash(passwordEncoder.encode(rawPassword));
+        u.setRole(role);
+        u.setEnabled(true);
 
-        userRepository.save(admin);
+        userRepository.save(u);
     }
 }

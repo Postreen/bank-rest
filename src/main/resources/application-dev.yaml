@@ -1,8 +1,10 @@
 app:
-  dev-admin:
-    username: admin
-    password: 1234
+  dev-users:
     enabled: true
+    admin-username: admin
+    admin-password: 1234
+    user-username: user
+    user-password: 1234
 
 spring:
   datasource:
@@ -12,9 +14,9 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
-      open-in-view: false
 
   liquibase:
     enabled: true

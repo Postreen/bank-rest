@@ -50,6 +50,7 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'com.h2database:h2'
     testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
     testImplementation "org.apache.commons:commons-compress:${commonsCompressVersion}"
     testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
@@ -58,4 +59,8 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    systemProperty "spring.profiles.active", "test"
+    environment.remove("SPRING_DATASOURCE_URL")
+    environment.remove("SPRING_DATASOURCE_USERNAME")
+    environment.remove("SPRING_DATASOURCE_PASSWORD")
 }
