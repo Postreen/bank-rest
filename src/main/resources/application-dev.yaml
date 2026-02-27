@@ -1,3 +1,9 @@
+app:
+  dev-admin:
+    username: admin
+    password: 1234
+    enabled: true
+
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL}

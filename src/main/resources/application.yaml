@@ -5,8 +5,8 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
-app:
-  dev-admin:
-    username: admin
-    password: 1234
-    enabled: true
+security:
+  jwt:
+    issuer: bank-rest
+    ttl-seconds: 3600
+    secret: ${JWT_SECRET}
