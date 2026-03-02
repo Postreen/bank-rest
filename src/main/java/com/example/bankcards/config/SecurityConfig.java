@@ -1,5 +1,6 @@
 package com.example.bankcards.config;
 
+import com.example.bankcards.security.crypto.CardCryptoProperties;
 import com.example.bankcards.security.handlers.RestAccessDeniedHandler;
 import com.example.bankcards.security.handlers.RestAuthenticationEntryPoint;
 import com.example.bankcards.security.jwt.JwtAuthenticationFilter;
@@ -19,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({JwtProperties.class, CardCryptoProperties.class})
 public class SecurityConfig {
 
     @Bean

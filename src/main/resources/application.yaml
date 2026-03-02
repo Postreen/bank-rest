@@ -10,3 +10,5 @@ security:
     issuer: bank-rest
     ttl-seconds: 3600
     secret: ${JWT_SECRET}
+  card-crypto:
+    key: ${CARD_CRYPTO_KEY}

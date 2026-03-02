@@ -7,6 +7,7 @@ import com.example.bankcards.entity.UserEntity;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
+import com.example.bankcards.security.crypto.CardCryptoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import java.time.OffsetDateTime;
 @RequiredArgsConstructor
 public class CardService {
 
+    private final CardCryptoService cardCryptoService;
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
 
@@ -27,11 +29,17 @@ public class CardService {
         UserEntity owner = userRepository.findById(request.ownerId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        CardEntity card = new CardEntity();
+        String pan = normalizePan(request.pan());
+        if (!pan.matches("\\d{12,19}")) {
+            throw new IllegalArgumentException("Invalid PAN format");
+        }
 
+        CardEntity card = new CardEntity();
         card.setOwner(owner);
-        card.setEncryptedPan(request.pan());
-        card.setPanLast4(request.pan().substring(request.pan().length() - 4));
+
+        card.setEncryptedPan(cardCryptoService.encryptToBase64(pan));
+        card.setPanLast4(pan.substring(pan.length() - 4));
+
         card.setHolderName(request.holderName());
         card.setExpiryMonth(request.expiryMonth());
         card.setExpiryYear(request.expiryYear());
@@ -61,5 +69,9 @@ public class CardService {
         CardEntity c = get(id);
         c.setStatus(CardStatus.DELETED);
         cardRepository.save(c);
+    }
+
+    private String normalizePan(String pan) {
+        return pan == null ? "" : pan.replaceAll("\\s+", "");
     }
 }

@@ -18,13 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
-@SpringBootTest(
-        classes = com.example.bankcards.BankRestApplication.class,
-        properties = {
-        "security.jwt.secret=test-test-test-test-test-test-test-test-test-test",
-        "security.jwt.issuer=bank-rest",
-        "security.jwt.ttl-seconds=3600"
-})
+@SpringBootTest(classes = com.example.bankcards.BankRestApplication.class)
 @AutoConfigureMockMvc
 class SecuritySmokeTest {
 
@@ -63,24 +57,25 @@ class SecuritySmokeTest {
     }
 
     @Test
-    void protected_without_token_returns_401() throws Exception {
-        mockMvc.perform(get("/api/ping"))
+    void admin_cards_without_token_returns_401() throws Exception {
+        mockMvc.perform(get("/admin/cards"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status").value(401));
     }
 
     @Test
-    void admin_endpoint_with_user_token_returns_403() throws Exception {
-        mockMvc.perform(get("/admin/ping")
+    void admin_cards_with_user_token_returns_403() throws Exception {
+        mockMvc.perform(get("/admin/cards")
                         .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.status").value(403));
     }
-
     @Test
-    void admin_endpoint_with_admin_token_returns_200() throws Exception {
-        mockMvc.perform(get("/admin/ping")
-                        .header("Authorization", "Bearer " + adminToken))
+    void admin_cards_with_admin_token_returns_200() throws Exception {
+        mockMvc.perform(get("/admin/cards")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .param("page", "0")
+                        .param("size", "1"))
                 .andExpect(status().isOk());
     }
 }
