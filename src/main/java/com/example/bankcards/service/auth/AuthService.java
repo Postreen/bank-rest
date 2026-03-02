@@ -1,6 +1,8 @@
 package com.example.bankcards.service.auth;
 
+import com.example.bankcards.dto.auth.LoginResult;
 import com.example.bankcards.entity.UserEntity;
+import com.example.bankcards.exception.InvalidCredentialsException;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.security.jwt.JwtProperties;
 import com.example.bankcards.security.jwt.JwtTokenService;
@@ -26,11 +28,5 @@ public class AuthService {
 
         String token = tokenService.generateToken(user.getId(), user.getUsername(), user.getRole());
         return new LoginResult(token, jwtProperties.ttlSeconds());
-    }
-
-    public record LoginResult(String token, long expiresIn) {
-    }
-
-    public static class InvalidCredentialsException extends RuntimeException {
     }
 }

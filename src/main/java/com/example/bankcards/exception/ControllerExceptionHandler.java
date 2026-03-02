@@ -26,6 +26,12 @@ public class ControllerExceptionHandler {
         return apiErrorFactory.badRequest(msg, request.getRequestURI());
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiErrorDto invalidCredentials(HttpServletRequest request) {
+        return apiErrorFactory.unauthorized("Invalid credentials", request.getRequestURI());
+    }
+
     private String fmt(FieldError fe) {
         return fe.getField() + ": " + fe.getDefaultMessage();
     }
