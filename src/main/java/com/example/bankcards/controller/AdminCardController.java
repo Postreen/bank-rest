@@ -1,8 +1,8 @@
 package com.example.bankcards.controller;
 
-import com.example.bankcards.dto.card.CardResponse;
-import com.example.bankcards.dto.card.CreateCardRequest;
-import com.example.bankcards.dto.card.UpdateStatusRequest;
+import com.example.bankcards.dto.card.admin.CardResponse;
+import com.example.bankcards.dto.card.admin.CreateCardRequest;
+import com.example.bankcards.dto.card.admin.UpdateCardStatusRequest;
 import com.example.bankcards.service.card.CardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class AdminCardController {
 
     @PatchMapping("/{id}/status")
     public CardResponse updateCardStatus(@PathVariable Long id,
-                                     @RequestBody @Valid UpdateStatusRequest request) {
+                                     @RequestBody @Valid UpdateCardStatusRequest request) {
         return cardService.updateCardStatus(id, request.status());
     }
 

@@ -1,7 +1,7 @@
 package com.example.bankcards.mapper;
 
-import com.example.bankcards.dto.card.CardResponse;
-import com.example.bankcards.dto.card.api.MyCardResponse;
+import com.example.bankcards.dto.card.admin.CardResponse;
+import com.example.bankcards.dto.card.user.MyCardResponse;
 import com.example.bankcards.entity.CardEntity;
 import org.springframework.stereotype.Component;
 

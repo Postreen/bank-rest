@@ -2,7 +2,7 @@ package com.example.bankcards.service.auth;
 
 import com.example.bankcards.dto.auth.LoginResult;
 import com.example.bankcards.entity.UserEntity;
-import com.example.bankcards.exception.InvalidCredentialsException;
+import com.example.bankcards.exception.domain.auth.InvalidCredentialsException;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.security.jwt.JwtProperties;
 import com.example.bankcards.security.jwt.JwtTokenService;
@@ -20,6 +20,10 @@ public class AuthService {
     private final JwtProperties jwtProperties;
 
     public LoginResult login(String username, String password) {
+        if (username.isBlank() || password.isBlank()) {
+            throw new InvalidCredentialsException();
+        }
+
         UserEntity user = userRepository.findByUsername(username).orElse(null);
 
         if (user == null || !user.isEnabled() || !passwordEncoder.matches(password, user.getPasswordHash())) {

@@ -2,9 +2,11 @@ package com.example.bankcards.repository;
 
 import com.example.bankcards.entity.CardEntity;
 import com.example.bankcards.entity.enums.CardStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -36,6 +38,19 @@ public interface CardRepository extends JpaRepository<CardEntity, Long> {
     Optional<CardEntity> findMyCardById(
             @Param("ownerId") long ownerId,
             @Param("cardId") long cardId,
+            @Param("deleted") CardStatus deleted
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            select c from CardEntity c
+            where c.id = :id
+              and c.owner.id = :ownerId
+              and c.status <> :deleted
+            """)
+    Optional<CardEntity> findMyCardForUpdate(
+            @Param("ownerId") long ownerId,
+            @Param("id") long id,
             @Param("deleted") CardStatus deleted
     );
 }

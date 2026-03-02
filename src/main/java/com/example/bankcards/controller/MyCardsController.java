@@ -1,7 +1,7 @@
 package com.example.bankcards.controller;
 
-import com.example.bankcards.dto.card.api.BalanceResponse;
-import com.example.bankcards.dto.card.api.MyCardResponse;
+import com.example.bankcards.dto.card.user.BalanceCardResponse;
+import com.example.bankcards.dto.card.user.MyCardResponse;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.security.CurrentUser;
 import com.example.bankcards.service.card.MyCardService;
@@ -41,7 +41,7 @@ public class MyCardsController {
     }
 
     @GetMapping("/{id}/balance")
-    public BalanceResponse getCardBalance(
+    public BalanceCardResponse getCardBalance(
             @PathVariable long id,
             Authentication authentication
     ) {

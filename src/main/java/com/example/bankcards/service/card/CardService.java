@@ -1,16 +1,17 @@
 package com.example.bankcards.service.card;
 
 
-import com.example.bankcards.dto.card.CardResponse;
-import com.example.bankcards.dto.card.CreateCardRequest;
+import com.example.bankcards.dto.card.admin.CardResponse;
+import com.example.bankcards.dto.card.admin.CreateCardRequest;
 import com.example.bankcards.entity.CardEntity;
 import com.example.bankcards.entity.UserEntity;
 import com.example.bankcards.entity.enums.CardStatus;
+import com.example.bankcards.exception.domain.card.CardNotFoundException;
+import com.example.bankcards.exception.domain.user.UserNotFoundException;
 import com.example.bankcards.mapper.CardMapper;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.security.crypto.CardCryptoService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,12 +31,9 @@ public class CardService {
 
     public CardResponse createCard(CreateCardRequest request) {
         UserEntity owner = userRepository.findById(request.ownerId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         String pan = normalizePan(request.pan());
-        if (!pan.matches("\\d{12,19}")) {
-            throw new IllegalArgumentException("Invalid PAN format");
-        }
 
         CardEntity card = new CardEntity();
         card.setOwner(owner);
@@ -72,7 +70,7 @@ public class CardService {
 
     private CardEntity getEntity(Long id) {
         return cardRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Card not found"));
+                .orElseThrow(CardNotFoundException::new);
     }
 
     private String normalizePan(String pan) {

@@ -1,8 +1,8 @@
 package com.example.bankcards.config;
 
 import com.example.bankcards.security.crypto.CardCryptoProperties;
-import com.example.bankcards.security.handlers.RestAccessDeniedHandler;
-import com.example.bankcards.security.handlers.RestAuthenticationEntryPoint;
+import com.example.bankcards.security.handlers.JsonAccessDeniedHandler;
+import com.example.bankcards.security.handlers.JsonAuthenticationEntryPoint;
 import com.example.bankcards.security.jwt.JwtAuthenticationFilter;
 import com.example.bankcards.security.jwt.JwtProperties;
 import com.example.bankcards.security.jwt.JwtTokenService;
@@ -27,8 +27,8 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtTokenService tokenService,
-            RestAuthenticationEntryPoint restAuthenticationEntryPoint,
-            RestAccessDeniedHandler restAccessDeniedHandler
+            JsonAuthenticationEntryPoint authenticationEntryPoint,
+            JsonAccessDeniedHandler accessDeniedHandler
     ) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -38,8 +38,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 .exceptionHandling(eh -> eh
-                        .authenticationEntryPoint(restAuthenticationEntryPoint)
-                        .accessDeniedHandler(restAccessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
                 )
 
                 .addFilterBefore(new JwtAuthenticationFilter(tokenService), UsernamePasswordAuthenticationFilter.class)
