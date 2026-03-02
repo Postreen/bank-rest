@@ -22,20 +22,18 @@ public class AdminCardController {
 
     @PostMapping
     public CardResponse create(@RequestBody @Valid CreateCardRequest request) {
-        return CardResponse.from(cardService.create(request));
+        return cardService.create(request);
     }
 
     @GetMapping
     public Page<CardResponse> all(@ParameterObject Pageable pageable) {
-        return cardService.findAll(pageable).map(CardResponse::from);
+        return cardService.findAll(pageable);
     }
 
     @PatchMapping("/{id}/status")
-    public CardResponse updateStatus(
-            @PathVariable Long id,
-            @RequestBody @Valid UpdateStatusRequest request
-    ) {
-        return CardResponse.from(cardService.updateStatus(id, request.status()));
+    public CardResponse updateStatus(@PathVariable Long id,
+                                     @RequestBody @Valid UpdateStatusRequest request) {
+        return cardService.updateStatus(id, request.status());
     }
 
     @DeleteMapping("/{id}")

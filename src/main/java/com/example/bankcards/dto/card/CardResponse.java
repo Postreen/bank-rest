@@ -1,8 +1,5 @@
 package com.example.bankcards.dto.card;
 
-import com.example.bankcards.entity.CardEntity;
-import com.example.bankcards.mapper.CardMapper;
-
 import java.math.BigDecimal;
 
 public record CardResponse(
@@ -15,7 +12,4 @@ public record CardResponse(
         String status,
         BigDecimal balance
 ) {
-    public static CardResponse from(CardEntity cardEntity) {
-        return CardMapper.toResponse(cardEntity);
-    }
 }

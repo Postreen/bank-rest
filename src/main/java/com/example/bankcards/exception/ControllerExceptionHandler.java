@@ -22,14 +22,16 @@ public class ControllerExceptionHandler {
         String msg = ex.getBindingResult().getFieldErrors().stream()
                 .map(this::fmt)
                 .collect(Collectors.joining("; "));
-
         return apiErrorFactory.badRequest(msg, request.getRequestURI());
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ApiErrorDto invalidCredentials(HttpServletRequest request) {
-        return apiErrorFactory.unauthorized("Invalid credentials", request.getRequestURI());
+    public ApiErrorDto invalidCredentials(InvalidCredentialsException ex, HttpServletRequest request) {
+        String msg = (ex.getMessage() == null || ex.getMessage().isBlank())
+                ? "Invalid credentials"
+                : ex.getMessage();
+        return apiErrorFactory.unauthorized(msg, request.getRequestURI());
     }
 
     private String fmt(FieldError fe) {

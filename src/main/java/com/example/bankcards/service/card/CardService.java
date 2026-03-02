@@ -1,10 +1,12 @@
 package com.example.bankcards.service.card;
 
 
+import com.example.bankcards.dto.card.CardResponse;
 import com.example.bankcards.dto.card.CreateCardRequest;
 import com.example.bankcards.entity.CardEntity;
 import com.example.bankcards.entity.UserEntity;
 import com.example.bankcards.entity.enums.CardStatus;
+import com.example.bankcards.mapper.CardMapper;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.security.crypto.CardCryptoService;
@@ -24,8 +26,9 @@ public class CardService {
     private final CardCryptoService cardCryptoService;
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
+    private final CardMapper cardMapper;
 
-    public CardEntity create(CreateCardRequest request) {
+    public CardResponse create(CreateCardRequest request) {
         UserEntity owner = userRepository.findById(request.ownerId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -47,28 +50,29 @@ public class CardService {
         card.setBalance(BigDecimal.ZERO);
         card.setCreatedAt(OffsetDateTime.now());
 
-        return cardRepository.save(card);
+        CardEntity saved = cardRepository.save(card);
+        return cardMapper.toCardResponse(saved);
     }
 
-    public Page<CardEntity> findAll(Pageable pageable) {
-        return cardRepository.findAll(pageable);
+    public Page<CardResponse> findAll(Pageable pageable) {
+        return cardRepository.findAll(pageable).map(cardMapper::toCardResponse);
     }
 
-    public CardEntity get(Long id) {
-        return cardRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Card not found"));
-    }
-
-    public CardEntity updateStatus(Long id, CardStatus status) {
-        CardEntity c = get(id);
+    public CardResponse updateStatus(Long id, CardStatus status) {
+        CardEntity c = getEntity(id);
         c.setStatus(status);
-        return cardRepository.save(c);
+        return cardMapper.toCardResponse(cardRepository.save(c));
     }
 
     public void delete(Long id) {
-        CardEntity c = get(id);
+        CardEntity c = getEntity(id);
         c.setStatus(CardStatus.DELETED);
         cardRepository.save(c);
+    }
+
+    private CardEntity getEntity(Long id) {
+        return cardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Card not found"));
     }
 
     private String normalizePan(String pan) {
