@@ -20,14 +20,14 @@ public class AdminCardController {
 
     private final CardService cardService;
 
-    @PostMapping
-    public CardResponse createCard(@RequestBody @Valid CreateCardRequest request) {
-        return cardService.createCard(request);
-    }
-
     @GetMapping
     public Page<CardResponse> getAllCards(@ParameterObject Pageable pageable) {
         return cardService.getAllCards(pageable);
+    }
+
+    @PostMapping("/create")
+    public CardResponse createCard(@RequestBody @Valid CreateCardRequest request) {
+        return cardService.createCard(request);
     }
 
     @PatchMapping("/{id}/status")
