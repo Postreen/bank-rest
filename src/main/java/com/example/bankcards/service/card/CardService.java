@@ -28,7 +28,7 @@ public class CardService {
     private final UserRepository userRepository;
     private final CardMapper cardMapper;
 
-    public CardResponse create(CreateCardRequest request) {
+    public CardResponse createCard(CreateCardRequest request) {
         UserEntity owner = userRepository.findById(request.ownerId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -54,17 +54,17 @@ public class CardService {
         return cardMapper.toCardResponse(saved);
     }
 
-    public Page<CardResponse> findAll(Pageable pageable) {
+    public Page<CardResponse> getAllCards(Pageable pageable) {
         return cardRepository.findAll(pageable).map(cardMapper::toCardResponse);
     }
 
-    public CardResponse updateStatus(Long id, CardStatus status) {
+    public CardResponse updateCardStatus(Long id, CardStatus status) {
         CardEntity c = getEntity(id);
         c.setStatus(status);
         return cardMapper.toCardResponse(cardRepository.save(c));
     }
 
-    public void delete(Long id) {
+    public void deleteCard(Long id) {
         CardEntity c = getEntity(id);
         c.setStatus(CardStatus.DELETED);
         cardRepository.save(c);

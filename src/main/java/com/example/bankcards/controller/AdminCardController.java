@@ -21,23 +21,23 @@ public class AdminCardController {
     private final CardService cardService;
 
     @PostMapping
-    public CardResponse create(@RequestBody @Valid CreateCardRequest request) {
-        return cardService.create(request);
+    public CardResponse createCard(@RequestBody @Valid CreateCardRequest request) {
+        return cardService.createCard(request);
     }
 
     @GetMapping
-    public Page<CardResponse> all(@ParameterObject Pageable pageable) {
-        return cardService.findAll(pageable);
+    public Page<CardResponse> getAllCards(@ParameterObject Pageable pageable) {
+        return cardService.getAllCards(pageable);
     }
 
     @PatchMapping("/{id}/status")
-    public CardResponse updateStatus(@PathVariable Long id,
+    public CardResponse updateCardStatus(@PathVariable Long id,
                                      @RequestBody @Valid UpdateStatusRequest request) {
-        return cardService.updateStatus(id, request.status());
+        return cardService.updateCardStatus(id, request.status());
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        cardService.delete(id);
+    public void deleteCard(@PathVariable Long id) {
+        cardService.deleteCard(id);
     }
 }

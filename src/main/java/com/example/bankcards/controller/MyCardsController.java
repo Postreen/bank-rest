@@ -21,18 +21,18 @@ public class MyCardsController {
     private final CurrentUser currentUser;
 
     @GetMapping
-    public Page<MyCardResponse> list(
+    public Page<MyCardResponse> getAllMyCards(
             @RequestParam(required = false) CardStatus status,
             @RequestParam(required = false) String last4,
             @ParameterObject Pageable pageable,
             Authentication authentication
     ) {
         long userId = currentUser.require(authentication).userId();
-        return myCardService.search(userId, status, last4, pageable);
+        return myCardService.getAllMyCards(userId, status, last4, pageable);
     }
 
     @GetMapping("/{id}")
-    public MyCardResponse get(
+    public MyCardResponse getMyCard(
             @PathVariable long id,
             Authentication authentication
     ) {
@@ -41,11 +41,20 @@ public class MyCardsController {
     }
 
     @GetMapping("/{id}/balance")
-    public BalanceResponse balance(
+    public BalanceResponse getCardBalance(
             @PathVariable long id,
             Authentication authentication
     ) {
         long userId = currentUser.require(authentication).userId();
-        return myCardService.getBalance(userId, id);
+        return myCardService.getCardBalance(userId, id);
+    }
+
+    @PostMapping("/{id}/block-request")
+    public MyCardResponse requestCardBlock(
+            @PathVariable long id,
+            Authentication authentication
+    ) {
+        long userId = currentUser.require(authentication).userId();
+        return myCardService.requestCardBlock(userId, id);
     }
 }

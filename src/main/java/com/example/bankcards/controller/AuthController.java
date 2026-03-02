@@ -27,7 +27,7 @@ public class AuthController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public MeResponse me(@AuthenticationPrincipal JwtPrincipal principal) {
+    public MeResponse getCurrentUser(@AuthenticationPrincipal JwtPrincipal principal) {
         return new MeResponse(principal.userId(), principal.username(), principal.role().name());
     }
 
