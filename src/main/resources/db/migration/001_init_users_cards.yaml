@@ -60,6 +60,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: pan_hash
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
                   name: pan_last4
                   type: varchar(4)
                   constraints:
@@ -91,10 +96,15 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: created_at
-                  type: timestamptz
+                  type: timestamp
                   defaultValueComputed: now()
                   constraints:
                     nullable: false
+
+        - addUniqueConstraint:
+            tableName: cards
+            columnNames: pan_hash
+            constraintName: uk_cards_pan_hash
 
         - addForeignKeyConstraint:
             baseTableName: cards

@@ -11,14 +11,13 @@ import java.time.OffsetDateTime;
 @Table(name = "cards",
         indexes = {
                 @Index(name = "idx_cards_owner_id", columnList = "owner_id"),
+                @Index(name = "idx_cards_owner_status", columnList = "owner_id, status"),
                 @Index(name = "idx_cards_last4", columnList = "pan_last4")
         }
 )
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class CardEntity {
 
     @Id
@@ -31,6 +30,9 @@ public class CardEntity {
 
     @Column(name = "encrypted_pan", nullable = false, columnDefinition = "text")
     private String encryptedPan;
+
+    @Column(name = "pan_hash", nullable = false, unique = true, length = 64)
+    private String panHash;
 
     @Column(name = "pan_last4", nullable = false, length = 4)
     private String panLast4;

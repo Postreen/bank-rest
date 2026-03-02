@@ -20,17 +20,23 @@ public class AuthService {
     private final JwtProperties jwtProperties;
 
     public LoginResult login(String username, String password) {
-        if (username.isBlank() || password.isBlank()) {
+        String u = normalize(username);
+        String p = normalize(password);
+
+        if (u.isEmpty() || p.isEmpty()) {
             throw new InvalidCredentialsException();
         }
 
-        UserEntity user = userRepository.findByUsername(username).orElse(null);
-
-        if (user == null || !user.isEnabled() || !passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new InvalidCredentialsException();
-        }
+        UserEntity user = userRepository.findByUsername(u)
+                .filter(UserEntity::isEnabled)
+                .filter(found -> passwordEncoder.matches(p, found.getPasswordHash()))
+                .orElseThrow(InvalidCredentialsException::new);
 
         String token = tokenService.generateToken(user.getId(), user.getUsername(), user.getRole());
         return new LoginResult(token, jwtProperties.ttlSeconds());
+    }
+
+    private static String normalize(String s) {
+        return s == null ? "" : s.trim();
     }
 }

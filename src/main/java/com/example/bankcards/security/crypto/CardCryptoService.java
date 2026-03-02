@@ -9,6 +9,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -18,8 +19,8 @@ public class CardCryptoService {
 
     private static final String ALGO = "AES";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
-    private static final int IV_LEN = 12;          // recommended for GCM
-    private static final int TAG_LEN_BITS = 128;   // 16 bytes auth tag
+    private static final int IV_LEN = 12;
+    private static final int TAG_LEN_BITS = 128;
 
     private final CardCryptoProperties props;
     private final SecureRandom random = new SecureRandom();
@@ -78,5 +79,23 @@ public class CardCryptoService {
         } catch (Exception e) {
             throw new IllegalArgumentException("PAN decryption failed", e);
         }
+    }
+
+    public String hash(String pan) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(pan.getBytes(StandardCharsets.UTF_8));
+            return toHex(hash);
+        } catch (Exception e) {
+            throw new IllegalStateException("PAN hash failed", e);
+        }
+    }
+
+    private static String toHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 }

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
@@ -53,6 +54,11 @@ public class ControllerExceptionHandler {
     public ResponseEntity<ApiErrorDto> illegalState(IllegalStateException ex, HttpServletRequest request) {
         String msg = defaultMessage(ex.getMessage(), "Illegal state");
         return build(HttpStatus.CONFLICT, msg, request);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorDto> notReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "Invalid request body", request);
     }
 
     @ExceptionHandler(Exception.class)

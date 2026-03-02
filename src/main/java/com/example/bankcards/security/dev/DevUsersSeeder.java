@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Profile("dev")
@@ -20,18 +21,19 @@ public class DevUsersSeeder implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final DevUsersProperties props;
 
+    @Transactional
     @Override
     public void run(String... args) {
         if (!props.enabled()) return;
 
-        createIfMissing(props.adminUsername(), props.adminPassword(), Role.ADMIN);
-        createIfMissing(props.userUsername(), props.userPassword(), Role.USER);
+        upsert(props.adminUsername(), props.adminPassword(), Role.ADMIN);
+        upsert(props.userUsername(), props.userPassword(), Role.USER);
     }
 
-    private void createIfMissing(String username, String rawPassword, Role role) {
-        if (userRepository.existsByUsername(username)) return;
+    private void upsert(String username, String rawPassword, Role role) {
+        UserEntity u = userRepository.findByUsername(username)
+                .orElseGet(UserEntity::new);
 
-        UserEntity u = new UserEntity();
         u.setUsername(username);
         u.setPasswordHash(passwordEncoder.encode(rawPassword));
         u.setRole(role);

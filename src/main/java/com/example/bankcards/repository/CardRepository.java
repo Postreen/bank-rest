@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,7 +20,7 @@ public interface CardRepository extends JpaRepository<CardEntity, Long> {
             where c.owner.id = :ownerId
               and c.status <> :deleted
               and (:status is null or c.status = :status)
-              and (:last4 is null or c.panLast4 like concat('%', :last4, '%'))
+              and (:last4 is null or c.panLast4 = :last4)
             """)
     Page<CardEntity> searchMyCards(
             @Param("ownerId") long ownerId,
@@ -29,28 +30,23 @@ public interface CardRepository extends JpaRepository<CardEntity, Long> {
             Pageable pageable
     );
 
+    @Modifying
     @Query("""
-            select c from CardEntity c
-            where c.id = :cardId
-              and c.owner.id = :ownerId
-              and c.status <> :deleted
-            """)
-    Optional<CardEntity> findMyCardById(
-            @Param("ownerId") long ownerId,
-            @Param("cardId") long cardId,
-            @Param("deleted") CardStatus deleted
-    );
+    update CardEntity c
+    set c.status = :deleted
+    where c.owner.id = :ownerId
+      and c.status <> :deleted
+""")
+    void markAllCardsDeletedByOwnerId(long ownerId, CardStatus deleted);
+
+    Optional<CardEntity> findByIdAndOwnerId(long cardId, long ownerId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("""
-            select c from CardEntity c
-            where c.id = :id
-              and c.owner.id = :ownerId
-              and c.status <> :deleted
-            """)
-    Optional<CardEntity> findMyCardForUpdate(
-            @Param("ownerId") long ownerId,
-            @Param("id") long id,
-            @Param("deleted") CardStatus deleted
+    Optional<CardEntity> findForUpdateByIdAndOwnerIdAndStatusNot(
+            long id,
+            long ownerId,
+            CardStatus status
     );
+
+    boolean existsByPanHash(String panHash);
 }

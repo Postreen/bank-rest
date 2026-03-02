@@ -1,13 +1,17 @@
 package com.example.bankcards.dto.card.admin;
 
-import jakarta.validation.constraints.*;
+import com.example.bankcards.dto.card.admin.validation.ValidPan;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record CreateCardRequest(
         @NotNull
         Long ownerId,
 
         @NotBlank
-        @Pattern(regexp = "\\d{16}", message = "PAN must be 16 digits")
+        @ValidPan
         String pan,
 
         @NotBlank

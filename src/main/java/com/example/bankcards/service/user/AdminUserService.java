@@ -4,9 +4,11 @@ import com.example.bankcards.dto.card.admin.AdminUserResponse;
 import com.example.bankcards.dto.card.admin.CreateUserRequest;
 import com.example.bankcards.dto.card.admin.UpdateUserRequest;
 import com.example.bankcards.entity.UserEntity;
+import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.exception.domain.user.UserNotFoundException;
 import com.example.bankcards.exception.domain.user.UsernameAlreadyExistsException;
 import com.example.bankcards.mapper.UserMapper;
+import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,12 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminUserService {
 
+    private final CardRepository cardRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
+
+    @Transactional(readOnly = true)
     public Page<AdminUserResponse> getUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
+        return userRepository.findAllByEnabledTrue(pageable)
                 .map(userMapper::toAdminResponse);
     }
 
@@ -38,28 +43,32 @@ public class AdminUserService {
 
         String hash = passwordEncoder.encode(createUserRequest.password());
 
-        UserEntity u = userMapper.fromCreateRequest(createUserRequest, hash);
-        u.setUsername(username);
+        UserEntity userEntity = userMapper.fromCreateRequest(createUserRequest, hash);
+        userEntity.setUsername(username);
 
-        UserEntity saved = userRepository.save(u);
+        UserEntity saved = userRepository.save(userEntity);
         return userMapper.toAdminResponse(saved);
     }
 
     @Transactional
-    public AdminUserResponse updateUser(long id, UpdateUserRequest req) {
-        UserEntity u = userRepository.findById(id)
+    public AdminUserResponse updateUser(long id, UpdateUserRequest updateUserRequest) {
+        UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
 
-        userMapper.applyUpdate(u, req);
+        userMapper.applyUpdate(userEntity, updateUserRequest);
 
-        return userMapper.toAdminResponse(u);
+        return userMapper.toAdminResponse(userEntity);
     }
 
     @Transactional
     public void deleteUser(long id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException();
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (userEntity.isEnabled()) {
+            userEntity.setEnabled(false);
         }
-        userRepository.deleteById(id);
+
+        cardRepository.markAllCardsDeletedByOwnerId(id, CardStatus.DELETED);
     }
 }

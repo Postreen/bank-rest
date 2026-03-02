@@ -14,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -22,28 +23,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
+            @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
-        if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
-            String token = header.substring("Bearer ".length()).trim();
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            resolveBearerToken(request)
+                    .flatMap(tokenService::validateAndParse)
+                    .ifPresent(principal -> {
+                        List<SimpleGrantedAuthority> authorities = List.of(
+                                new SimpleGrantedAuthority("ROLE_" + principal.role().name())
+                        );
 
-            tokenService.validateAndParse(token).ifPresent(principal -> {
-                List<SimpleGrantedAuthority> authorities = List.of(
-                        new SimpleGrantedAuthority("ROLE_" + principal.role().name())
-                );
-
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        principal,
-                        null,
-                        authorities);
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            });
+                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                                principal,
+                                null,
+                                authorities
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    });
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private static Optional<String> resolveBearerToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
+            return Optional.empty();
+        }
+        String token = header.substring("Bearer ".length()).trim();
+        return token.isEmpty() ? Optional.empty() : Optional.of(token);
     }
 }

@@ -21,8 +21,8 @@ public class AdminCardController {
     private final CardService cardService;
 
     @GetMapping
-    public Page<CardResponse> getAllCards(@ParameterObject Pageable pageable) {
-        return cardService.getAllCards(pageable);
+    public Page<CardResponse> getCards(@ParameterObject Pageable pageable) {
+        return cardService.getCards(pageable);
     }
 
     @PostMapping("/create")

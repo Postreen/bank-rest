@@ -3,7 +3,7 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.card.user.TransferRequest;
 import com.example.bankcards.dto.card.user.TransferResponse;
 import com.example.bankcards.security.CurrentUser;
-import com.example.bankcards.service.card.transfer.TransferService;
+import com.example.bankcards.service.transfer.TransferService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
