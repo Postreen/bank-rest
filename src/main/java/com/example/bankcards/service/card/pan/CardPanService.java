@@ -13,19 +13,23 @@ public class CardPanService {
     private final CardCryptoService crypto;
 
     public ProtectedPan protectPan(String pan) {
+        String validPan = validatePan(pan);
+
+        String encrypted = crypto.encryptToBase64(validPan);
+        String hash = crypto.hash(validPan);
+        String last4 = validPan.substring(validPan.length() - 4);
+
+        return new ProtectedPan(encrypted, hash, last4);
+    }
+
+    private String validatePan(String pan) {
         if (pan == null) {
             throw new InvalidPanException();
         }
-
-        String normalized = pan.replace(" ", "").trim();
-        if (normalized.length() < 4) {
+        String validPan = pan.replace(" ", "").trim();
+        if (validPan.length() < 4) {
             throw new InvalidPanException();
         }
-
-        String encrypted = crypto.encryptToBase64(normalized);
-        String hash = crypto.hash(normalized);
-        String last4 = normalized.substring(normalized.length() - 4);
-
-        return new ProtectedPan(encrypted, hash, last4);
+        return validPan;
     }
 }

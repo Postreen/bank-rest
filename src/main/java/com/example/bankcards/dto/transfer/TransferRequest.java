@@ -1,4 +1,4 @@
-package com.example.bankcards.dto.card.user;
+package com.example.bankcards.dto.transfer;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;

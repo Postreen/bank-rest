@@ -26,7 +26,6 @@ public class AdminCardService {
     @Transactional
     public CardResponse createCardForOwner(CreateCardRequest request) {
         UserEntity owner = userService.getUserOrThrow(request.ownerId());
-
         CardEntity card = cardService.createCardForOwner(owner, request);
         return cardMapper.toCardResponse(card);
     }

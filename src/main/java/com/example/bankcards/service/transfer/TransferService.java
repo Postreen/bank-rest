@@ -1,7 +1,7 @@
 package com.example.bankcards.service.transfer;
 
-import com.example.bankcards.dto.card.user.TransferRequest;
-import com.example.bankcards.dto.card.user.TransferResponse;
+import com.example.bankcards.dto.transfer.TransferRequest;
+import com.example.bankcards.dto.transfer.TransferResponse;
 import com.example.bankcards.entity.CardEntity;
 import com.example.bankcards.service.transfer.load.OwnedCardLoader;
 import com.example.bankcards.service.transfer.validation.TransferValidator;
