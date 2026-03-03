@@ -5,6 +5,7 @@ import com.example.bankcards.dto.card.admin.CreateCardRequest;
 import com.example.bankcards.dto.card.admin.UpdateCardStatusRequest;
 import com.example.bankcards.exception.api.ApiErrorDto;
 import com.example.bankcards.service.admin.AdminCardService;
+import com.example.bankcards.util.LogAuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/admin/cards")
 @RequiredArgsConstructor
@@ -46,7 +49,10 @@ public class AdminCardController {
                             schema = @Schema(implementation = ApiErrorDto.class)))
     })
     public Page<CardResponse> getCards(@ParameterObject Pageable pageable) {
-        return adminCardService.getCards(pageable);
+        log.info("Request start: method=GET endpoint=/admin/cards user={}", LogAuthUtil.principal());
+        Page<CardResponse> response = adminCardService.getCards(pageable);
+        log.info("Request end: method=GET endpoint=/admin/cards user={} result=success", LogAuthUtil.principal());
+        return response;
     }
 
     @PostMapping("/create")
@@ -72,7 +78,12 @@ public class AdminCardController {
                             schema = @Schema(implementation = ApiErrorDto.class)))
     })
     public CardResponse createCard(@RequestBody @Valid CreateCardRequest request) {
-        return adminCardService.createCardForOwner(request);
+        log.info("Request start: method=POST endpoint=/admin/cards/create user={} ownerId={}",
+                LogAuthUtil.principal(), request.ownerId());
+        CardResponse response = adminCardService.createCardForOwner(request);
+        log.info("Request end: method=POST endpoint=/admin/cards/create user={} cardId={} ownerId={} result=success",
+                LogAuthUtil.principal(), response.id(), response.ownerId());
+        return response;
     }
 
     @PatchMapping("/{id}/status")
@@ -98,7 +109,12 @@ public class AdminCardController {
             @PathVariable Long id,
             @RequestBody @Valid UpdateCardStatusRequest request
     ) {
-        return adminCardService.changeCardStatus(id, request.status());
+        log.info("Request start: method=PATCH endpoint=/admin/cards/{}/status user={} cardId={} status={}",
+                id, LogAuthUtil.principal(), id, request.status());
+        CardResponse response = adminCardService.changeCardStatus(id, request.status());
+        log.info("Request end: method=PATCH endpoint=/admin/cards/{}/status user={} cardId={} result=success",
+                id, LogAuthUtil.principal(), id);
+        return response;
     }
 
     @DeleteMapping("/{id}")
@@ -120,6 +136,10 @@ public class AdminCardController {
     })
     @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
     public void deleteCardById(@PathVariable Long id) {
+        log.info("Request start: method=DELETE endpoint=/admin/cards/{} user={} cardId={}",
+                id, LogAuthUtil.principal(), id);
         adminCardService.deleteCardById(id);
+        log.info("Request end: method=DELETE endpoint=/admin/cards/{} user={} cardId={} result=success",
+                id, LogAuthUtil.principal(), id);
     }
 }

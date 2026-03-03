@@ -3,6 +3,7 @@ package com.example.bankcards.mapper;
 import com.example.bankcards.dto.card.admin.CardResponse;
 import com.example.bankcards.dto.card.user.UserCardResponse;
 import com.example.bankcards.entity.CardEntity;
+import com.example.bankcards.util.SensitiveDataMasker;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,7 +12,7 @@ public final class CardMapper {
         return new CardResponse(
                 card.getId(),
                 card.getOwner().getId(),
-                mask(card.getPanLast4()),
+                SensitiveDataMasker.maskPan(card.getPanLast4()),
                 card.getHolderName(),
                 card.getExpiryMonth(),
                 card.getExpiryYear(),
@@ -23,7 +24,7 @@ public final class CardMapper {
     public UserCardResponse toUserCardResponse(CardEntity card) {
         return new UserCardResponse(
                 card.getId(),
-                mask(card.getPanLast4()),
+                SensitiveDataMasker.maskPan(card.getPanLast4()),
                 card.getHolderName(),
                 card.getExpiryMonth(),
                 card.getExpiryYear(),
@@ -32,7 +33,4 @@ public final class CardMapper {
         );
     }
 
-    private String mask(String last4) {
-        return "**** **** **** " + last4;
-    }
 }

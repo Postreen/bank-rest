@@ -10,11 +10,13 @@ import com.example.bankcards.mapper.CardMapper;
 import com.example.bankcards.service.card.CardService;
 import com.example.bankcards.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminCardService {
@@ -27,6 +29,7 @@ public class AdminCardService {
     public CardResponse createCardForOwner(CreateCardRequest request) {
         UserEntity owner = userService.getUserOrThrow(request.ownerId());
         CardEntity card = cardService.createCardForOwner(owner, request);
+        log.info("Card created: cardId={} ownerId={}", card.getId(), owner.getId());
         return cardMapper.toCardResponse(card);
     }
 
@@ -39,11 +42,13 @@ public class AdminCardService {
     @Transactional
     public CardResponse changeCardStatus(long id, CardStatus status) {
         CardEntity updated = cardService.changeCardStatus(id, status);
+        log.info("Card status changed: cardId={} status={}", updated.getId(), updated.getStatus());
         return cardMapper.toCardResponse(updated);
     }
 
     @Transactional
     public void deleteCardById(long id) {
+        log.info("Card deleted: cardId={}", id);
         cardService.deleteCardById(id);
     }
 }

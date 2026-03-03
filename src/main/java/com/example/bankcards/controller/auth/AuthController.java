@@ -16,11 +16,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -49,7 +51,9 @@ public class AuthController {
                             schema = @Schema(implementation = ApiErrorDto.class)))
     })
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+        log.info("Request start: method=POST endpoint=/auth/login principal=anonymous");
         LoginResult result = authService.login(request.username(), request.password());
+        log.info("Request end: method=POST endpoint=/auth/login principal=anonymous result=success");
         return new LoginResponse(
                 result.token(),
                 "Bearer",
@@ -73,10 +77,16 @@ public class AuthController {
                             schema = @Schema(implementation = ApiErrorDto.class)))
     })
     public MeResponse getCurrentUser(@AuthenticationPrincipal JwtPrincipal principal) {
-        return new MeResponse(
+        log.info("Request start: method=GET endpoint=/auth/me userId={} username={}",
+                principal.userId(), principal.username());
+
+        MeResponse response = new MeResponse(
                 principal.userId(),
                 principal.username(),
                 principal.role().name()
         );
+        log.info("Request end: method=GET endpoint=/auth/me userId={} username={} result=success",
+                principal.userId(), principal.username());
+        return response;
     }
 }

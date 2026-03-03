@@ -6,12 +6,14 @@ import com.example.bankcards.exception.domain.user.UserNotFoundException;
 import com.example.bankcards.exception.domain.user.UsernameAlreadyExistsException;
 import com.example.bankcards.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -22,6 +24,7 @@ public class UserService {
     public Page<UserEntity> getEnabledUsers(Pageable pageable) {
         return userRepository.findAllByEnabledTrue(pageable);
     }
+
     @Transactional(readOnly = true)
     public UserEntity getUserOrThrow(long userId) {
         return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
@@ -32,6 +35,7 @@ public class UserService {
         String username = normalizeUsername(userNameRaw);
 
         if (userRepository.existsByUsername(username)) {
+            log.warn("User creation rejected: username already exists username={}", username);
             throw new UsernameAlreadyExistsException(username);
         }
 
@@ -43,7 +47,9 @@ public class UserService {
         user.setRole(role);
         user.setEnabled(true);
 
-        return userRepository.save(user);
+        UserEntity saved = userRepository.save(user);
+        log.info("User persisted: userId={} username={} role={}", saved.getId(), saved.getUsername(), saved.getRole());
+        return saved;
     }
 
     @Transactional

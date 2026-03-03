@@ -8,11 +8,13 @@ import com.example.bankcards.mapper.UserMapper;
 import com.example.bankcards.service.card.CardService;
 import com.example.bankcards.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminUserService {
@@ -34,6 +36,7 @@ public class AdminUserService {
                 createUserRequest.password(),
                 createUserRequest.role()
         );
+        log.info("User created: userId={} username={} role={}", user.getId(), user.getUsername(), user.getRole());
         return userMapper.toAdminResponse(user);
     }
 
@@ -44,6 +47,7 @@ public class AdminUserService {
                 updateUserRequest.enabled(),
                 updateUserRequest.role()
         );
+        log.info("User updated: userId={} enabled={} role={}", user.getId(), user.isEnabled(), user.getRole());
         return userMapper.toAdminResponse(user);
     }
 
@@ -51,5 +55,7 @@ public class AdminUserService {
     public void deleteUserById(long userId) {
         cardService.deleteAllCardsByOwnerId(userId);
         userService.deleteUserById(userId);
+        log.info("User deleted: userId={}", userId);
     }
+
 }

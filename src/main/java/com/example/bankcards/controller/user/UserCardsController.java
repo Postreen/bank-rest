@@ -5,6 +5,7 @@ import com.example.bankcards.dto.card.user.UserCardResponse;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.exception.api.ApiErrorDto;
 import com.example.bankcards.security.CurrentUser;
+import com.example.bankcards.security.jwt.JwtPrincipal;
 import com.example.bankcards.service.user.UserCardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/cards")
 @RequiredArgsConstructor
@@ -59,8 +62,15 @@ public class UserCardsController {
             @ParameterObject Pageable pageable,
             @Parameter(hidden = true) Authentication authentication
     ) {
-        long userId = currentUser.require(authentication).userId();
-        return userCardService.getAllOwnedCards(userId, status, last4, pageable);
+        JwtPrincipal principal = currentUser.require(authentication);
+        log.info("Request start: method=GET endpoint=/cards userId={} username={}",
+                principal.userId(), principal.username());
+
+        Page<UserCardResponse> response = userCardService.getAllOwnedCards(principal.userId(), status, last4, pageable);
+
+        log.info("Request end: method=GET endpoint=/cards userId={} username={} result=success",
+                principal.userId(), principal.username());
+        return response;
     }
 
     @GetMapping("/{id}")
@@ -83,8 +93,15 @@ public class UserCardsController {
             @PathVariable long id,
             @Parameter(hidden = true) Authentication authentication
     ) {
-        long userId = currentUser.require(authentication).userId();
-        return userCardService.getOwnedCard(id, userId);
+        JwtPrincipal principal = currentUser.require(authentication);
+        log.info("Request start: method=GET endpoint=/cards/{} userId={} username={} cardId={}",
+                id, principal.userId(), principal.username(), id);
+
+        UserCardResponse response = userCardService.getOwnedCard(id, principal.userId());
+
+        log.info("Request end: method=GET endpoint=/cards/{} userId={} username={} cardId={} result=success",
+                id, principal.userId(), principal.username(), id);
+        return response;
     }
 
     @GetMapping("/{id}/balance")
@@ -107,8 +124,15 @@ public class UserCardsController {
             @PathVariable long id,
             @Parameter(hidden = true) Authentication authentication
     ) {
-        long userId = currentUser.require(authentication).userId();
-        return userCardService.getCardBalance(id, userId);
+        JwtPrincipal principal = currentUser.require(authentication);
+        log.info("Request start:method=GET endpoint=/cards/{}/balance userId={} username={} cardId={}",
+                id, principal.userId(), principal.username(), id);
+
+        BalanceCardResponse response = userCardService.getCardBalance(id, principal.userId());
+
+        log.info("Request end:method=GET endpoint=/cards/{}/balance userId={} username={} cardId={} result=success",
+                id, principal.userId(), principal.username(), id);
+        return response;
     }
 
     @PostMapping("/{id}/block-request")
@@ -134,7 +158,14 @@ public class UserCardsController {
             @PathVariable long id,
             @Parameter(hidden = true) Authentication authentication
     ) {
-        long userId = currentUser.require(authentication).userId();
-        return userCardService.requestCardBlock(id, userId);
+        JwtPrincipal principal = currentUser.require(authentication);
+        log.info("Request start: method=POST endpoint=/cards/{}/block-request userId={} username={} cardId={}",
+                id, principal.userId(), principal.username(), id);
+
+        UserCardResponse response = userCardService.requestCardBlock(id, principal.userId());
+
+        log.info("Request end: method=POST endpoint=/cards/{}/block-request userId={} username={} cardId={} result=success",
+                id, principal.userId(), principal.username(), id);
+        return response;
     }
 }

@@ -5,6 +5,7 @@ import com.example.bankcards.dto.card.admin.CreateUserRequest;
 import com.example.bankcards.dto.card.admin.UpdateUserRequest;
 import com.example.bankcards.exception.api.ApiErrorDto;
 import com.example.bankcards.service.admin.AdminUserService;
+import com.example.bankcards.util.LogAuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/admin/users")
 @PreAuthorize("hasRole('ADMIN')")
@@ -46,7 +49,10 @@ public class AdminUserController {
                             schema = @Schema(implementation = ApiErrorDto.class)))
     })
     public Page<AdminUserResponse> getUsers(@ParameterObject Pageable pageable) {
-        return adminUserService.getUsers(pageable);
+        log.info("Request start: method=GET endpoint=/admin/users user={}", LogAuthUtil.principal());
+        Page<AdminUserResponse> response = adminUserService.getUsers(pageable);
+        log.info("Request end: method=GET endpoint=/admin/users user={} result=success", LogAuthUtil.principal());
+        return response;
     }
 
     @PostMapping("/create")
@@ -69,7 +75,11 @@ public class AdminUserController {
                             schema = @Schema(implementation = ApiErrorDto.class)))
     })
     public AdminUserResponse createUser(@RequestBody @Valid CreateUserRequest req) {
-        return adminUserService.createUser(req);
+        log.info("Request start: method=POST endpoint=/admin/users/create user={}", LogAuthUtil.principal());
+        AdminUserResponse response = adminUserService.createUser(req);
+        log.info("Request end: method=POST endpoint=/admin/users/create user={} targetUserId={} result=success",
+                LogAuthUtil.principal(), response.id());
+        return response;
     }
 
     @PatchMapping("/{id}")
@@ -95,7 +105,12 @@ public class AdminUserController {
                             schema = @Schema(implementation = ApiErrorDto.class)))
     })
     public AdminUserResponse updateUser(@PathVariable long id, @RequestBody @Valid UpdateUserRequest req) {
-        return adminUserService.updateUser(id, req);
+        log.info("Request start: method=PATCH endpoint=/admin/users/{} user={} targetUserId={}",
+                id, LogAuthUtil.principal(), id);
+        AdminUserResponse response = adminUserService.updateUser(id, req);
+        log.info("Request end: method=PATCH endpoint=/admin/users/{} user={} targetUserId={} result=success",
+                id, LogAuthUtil.principal(), id);
+        return response;
     }
 
     @DeleteMapping("/{id}")
@@ -117,6 +132,10 @@ public class AdminUserController {
     })
     @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
+        log.info("Request start: method=DELETE endpoint=/admin/users/{} user={} targetUserId={}",
+                id, LogAuthUtil.principal(), id);
         adminUserService.deleteUserById(id);
+        log.info("Request end: method=DELETE endpoint=/admin/users/{} user={} targetUserId={} result=success",
+                id, LogAuthUtil.principal(), id);
     }
 }

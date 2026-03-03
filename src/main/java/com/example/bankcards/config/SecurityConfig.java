@@ -4,6 +4,7 @@ import com.example.bankcards.security.crypto.CardCryptoProperties;
 import com.example.bankcards.security.handlers.JsonAccessDeniedHandler;
 import com.example.bankcards.security.handlers.JsonAuthenticationEntryPoint;
 import com.example.bankcards.security.jwt.JwtAuthenticationFilter;
+import com.example.bankcards.security.filter.CorrelationIdFilter;
 import com.example.bankcards.security.jwt.JwtProperties;
 import com.example.bankcards.security.jwt.JwtTokenService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,6 +28,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtTokenService tokenService,
+            CorrelationIdFilter correlationIdFilter,
             JsonAuthenticationEntryPoint authenticationEntryPoint,
             JsonAccessDeniedHandler accessDeniedHandler
     ) throws Exception {
@@ -42,6 +44,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
 
+                .addFilterBefore(correlationIdFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthenticationFilter(tokenService), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
