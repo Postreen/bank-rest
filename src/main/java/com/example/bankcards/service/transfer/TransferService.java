@@ -3,7 +3,7 @@ package com.example.bankcards.service.transfer;
 import com.example.bankcards.dto.transfer.TransferRequest;
 import com.example.bankcards.dto.transfer.TransferResponse;
 import com.example.bankcards.entity.CardEntity;
-import com.example.bankcards.service.transfer.load.OwnedCardLoader;
+import com.example.bankcards.service.card.CardService;
 import com.example.bankcards.service.transfer.validation.TransferValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class TransferService {
 
     private final TransferValidator validator;
-    private final OwnedCardLoader cardLoader;
+    private final CardService cardService;
     private final TransferDomainService domain;
 
     @Transactional
@@ -28,8 +28,8 @@ public class TransferService {
         long firstId = Math.min(req.fromCardId(), req.toCardId());
         long secondId = Math.max(req.fromCardId(), req.toCardId());
 
-        CardEntity first = cardLoader.loadForUpdate(ownerId, firstId);
-        CardEntity second = cardLoader.loadForUpdate(ownerId, secondId);
+        CardEntity first = cardService.loadForUpdate(ownerId, firstId);
+        CardEntity second = cardService.loadForUpdate(ownerId, secondId);
 
         CardEntity from = (req.fromCardId() == first.getId()) ? first : second;
         CardEntity to = (req.toCardId() == first.getId()) ? first : second;

@@ -17,7 +17,7 @@ public interface CardRepository extends JpaRepository<CardEntity, Long> {
     @Query("""
             select c from CardEntity c
             where c.owner.id = :ownerId
-              and c.status <> :deleted
+              and c.status <> :blocked
               and (:status is null or c.status = :status)
               and (:last4 is null or c.panLast4 = :last4)
             """)
@@ -25,18 +25,14 @@ public interface CardRepository extends JpaRepository<CardEntity, Long> {
             @Param("ownerId") long ownerId,
             @Param("status") CardStatus status,
             @Param("last4") String last4,
-            @Param("deleted") CardStatus deleted,
+            @Param("blocked") CardStatus blocked,
             Pageable pageable
     );
 
-    Optional<CardEntity> findByIdAndOwnerIdAndStatusNot(long id, long ownerId, CardStatus status);
+    Optional<CardEntity> findByIdAndOwnerId(long id, long ownerId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<CardEntity> findWithLockByIdAndOwnerIdAndStatusNot(
-            long id,
-            long ownerId,
-            CardStatus status
-    );
+    Optional<CardEntity> findWithLockByIdAndOwnerId(long id, long ownerId);
 
     void deleteAllByOwnerId(Long ownerId);
 

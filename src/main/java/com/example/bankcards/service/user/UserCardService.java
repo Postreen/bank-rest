@@ -18,19 +18,19 @@ public class UserCardService {
     private final CardService cardService;
     private final CardMapper cardMapper;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Page<UserCardResponse> getAllOwnedCards(long ownerId, CardStatus status, String last4, Pageable pageable) {
         return cardService.searchOwnedCards(ownerId, status, last4, pageable)
                 .map(cardMapper::toUserCardResponse);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public UserCardResponse getOwnedCard(long cardId, long ownerId) {
         CardEntity card = cardService.getOwnedCardOrThrow(cardId, ownerId);
         return cardMapper.toUserCardResponse(card);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public BalanceCardResponse getCardBalance(long cardId, long ownerId) {
         CardEntity card = cardService.getOwnedCardOrThrow(cardId, ownerId);
         return new BalanceCardResponse(card.getBalance());

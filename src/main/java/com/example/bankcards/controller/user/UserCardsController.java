@@ -19,12 +19,14 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/cards")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('USER')")
 @SecurityRequirement(name = "bearerAuth")
 @Tag(
         name = "User Cards",

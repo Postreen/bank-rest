@@ -19,12 +19,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.YearMonth;
+
 @Service
 @RequiredArgsConstructor
 public class CardService {
     private final CardRepository cardRepository;
     private final CardPanService cardPanService;
     private final CardFactory cardFactory;
+    private final Clock clock;
 
     @Transactional
     public CardEntity createCardForOwner(UserEntity owner, CreateCardRequest request) {
@@ -45,27 +49,34 @@ public class CardService {
         return cardRepository.save(card);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CardEntity getOwnedCardOrThrow(long cardId, long ownerId) {
-        return cardRepository.findByIdAndOwnerIdAndStatusNot(cardId, ownerId, CardStatus.DELETED)
+        CardEntity card = cardRepository.findByIdAndOwnerId(cardId, ownerId)
                 .orElseThrow(CardNotFoundException::new);
+        applyExpiryIfNeeded(card);
+        return card;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Page<CardEntity> searchOwnedCards(long ownerId, CardStatus status, String last4, Pageable pageable) {
         String normalizedLast4 = Last4Normalizer.normalize(last4);
 
-        return cardRepository.searchOwnedCards(ownerId, status, normalizedLast4, CardStatus.DELETED, pageable);
+        return cardRepository.searchOwnedCards(ownerId, status, normalizedLast4, status, pageable)
+                .map(this::applyExpiryIfNeeded);
     }
 
     @Transactional
     public void requestCardBlock(CardEntity card) {
-        switch (card.getStatus()) {
-            case ACTIVE -> card.setStatus(CardStatus.BLOCK_REQUESTED);
-            case BLOCK_REQUESTED -> {}
-            case BLOCKED -> throw new CardAlreadyBlockedException();
-            default -> throw new InvalidCardStatusException(card.getStatus());
+        applyExpiryIfNeeded(card);
+
+        if (card.getStatus() == CardStatus.BLOCKED) {
+            throw new CardAlreadyBlockedException();
         }
+        if (card.getStatus() != CardStatus.ACTIVE) {
+            throw new InvalidCardStatusException(card.getStatus());
+        }
+
+        card.setStatus(CardStatus.BLOCK_REQUESTED);
     }
 
     @Transactional
@@ -73,14 +84,18 @@ public class CardService {
         cardRepository.deleteAllByOwnerId(ownerId);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Page<CardEntity> getCards(Pageable pageable) {
-        return cardRepository.findAll(pageable);
+        return cardRepository.findAll(pageable).map(this::applyExpiryIfNeeded);
     }
 
     @Transactional
     public CardEntity changeCardStatus(long cardId, CardStatus status) {
         CardEntity card = getCardOrThrow(cardId);
+        applyExpiryIfNeeded(card);
+        if (card.getStatus() == CardStatus.EXPIRED && status != CardStatus.EXPIRED) {
+            throw new InvalidCardStatusException(card.getStatus());
+        }
         card.setStatus(status);
         return card;
     }
@@ -95,5 +110,25 @@ public class CardService {
     public CardEntity getCardOrThrow(long cardId) {
         return cardRepository.findById(cardId)
                 .orElseThrow(CardNotFoundException::new);
+    }
+
+    public CardEntity loadForUpdate(long ownerId, long cardId) {
+        CardEntity card = cardRepository.findWithLockByIdAndOwnerId(cardId, ownerId)
+                .orElseThrow(CardNotFoundException::new);
+        return applyExpiryIfNeeded(card);
+    }
+
+    public CardEntity applyExpiryIfNeeded(CardEntity card) {
+        if (card.getStatus() == CardStatus.EXPIRED) {
+            return card;
+        }
+
+        YearMonth now = YearMonth.now(clock);
+        YearMonth expiry = YearMonth.of(card.getExpiryYear(), card.getExpiryMonth());
+        if (expiry.isBefore(now)) {
+            card.setStatus(CardStatus.EXPIRED);
+        }
+
+        return card;
     }
 }
