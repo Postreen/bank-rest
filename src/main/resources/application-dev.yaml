@@ -1,3 +1,6 @@
+server:
+  port: ${SERVER_PORT:8081}
+
 app:
   dev-users:
     enabled: true
@@ -8,9 +11,9 @@ app:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bank}
+    username: ${SPRING_DATASOURCE_USERNAME:bank}
+    password: ${SPRING_DATASOURCE_PASSWORD:bank}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -21,6 +24,13 @@ spring:
   liquibase:
     enabled: true
 
+security:
+  jwt:
+    secret: ${JWT_SECRET:01234567890123456789012345678901}
+  card-crypto:
+    key: ${CARD_CRYPTO_KEY:12345678901234567890123456789012}
+
 logging:
   level:
     liquibase: info
+

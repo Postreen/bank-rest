@@ -70,10 +70,28 @@ class SecuritySmokeTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.status").value(403));
     }
+
     @Test
     void admin_cards_with_admin_token_returns_200() throws Exception {
         mockMvc.perform(get("/admin/cards")
                         .header("Authorization", "Bearer " + adminToken)
+                        .param("page", "0")
+                        .param("size", "1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void user_cards_with_admin_token_returns_403() throws Exception {
+        mockMvc.perform(get("/cards")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403));
+    }
+
+    @Test
+    void user_cards_with_user_token_returns_200() throws Exception {
+        mockMvc.perform(get("/cards")
+                        .header("Authorization", "Bearer " + userToken)
                         .param("page", "0")
                         .param("size", "1"))
                 .andExpect(status().isOk());
