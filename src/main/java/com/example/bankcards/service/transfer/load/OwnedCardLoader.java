@@ -14,7 +14,7 @@ public class OwnedCardLoader {
     private final CardRepository cardRepository;
 
     public CardEntity loadForUpdate(long ownerId, long cardId) {
-        return cardRepository.findForUpdateByIdAndOwnerIdAndStatusNot(cardId, ownerId, CardStatus.DELETED)
+        return cardRepository.findWithLockByIdAndOwnerIdAndStatusNot(cardId, ownerId, CardStatus.DELETED)
                 .orElseThrow(CardNotFoundException::new);
     }
 }

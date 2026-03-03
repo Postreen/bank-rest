@@ -1,9 +1,9 @@
-package com.example.bankcards.controller;
+package com.example.bankcards.controller.admin;
 
 import com.example.bankcards.dto.card.admin.CardResponse;
 import com.example.bankcards.dto.card.admin.CreateCardRequest;
 import com.example.bankcards.dto.card.admin.UpdateCardStatusRequest;
-import com.example.bankcards.service.card.CardService;
+import com.example.bankcards.service.admin.AdminCardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -18,26 +18,26 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminCardController {
 
-    private final CardService cardService;
+    private final AdminCardService adminCardService;
 
     @GetMapping
     public Page<CardResponse> getCards(@ParameterObject Pageable pageable) {
-        return cardService.getCards(pageable);
+        return adminCardService.getCards(pageable);
     }
 
     @PostMapping("/create")
     public CardResponse createCard(@RequestBody @Valid CreateCardRequest request) {
-        return cardService.createCard(request);
+        return adminCardService.createCardForOwner(request);
     }
 
     @PatchMapping("/{id}/status")
-    public CardResponse updateCardStatus(@PathVariable Long id,
+    public CardResponse changeCardStatus(@PathVariable Long id,
                                      @RequestBody @Valid UpdateCardStatusRequest request) {
-        return cardService.updateCardStatus(id, request.status());
+        return adminCardService.changeCardStatus(id, request.status());
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCard(@PathVariable Long id) {
-        cardService.deleteCard(id);
+    public void deleteCardById(@PathVariable Long id) {
+        adminCardService.deleteCardById(id);
     }
 }

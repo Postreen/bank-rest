@@ -1,7 +1,7 @@
 package com.example.bankcards.mapper;
 
 import com.example.bankcards.dto.card.admin.CardResponse;
-import com.example.bankcards.dto.card.user.MyCardResponse;
+import com.example.bankcards.dto.card.user.UserCardResponse;
 import com.example.bankcards.entity.CardEntity;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +20,8 @@ public final class CardMapper {
         );
     }
 
-    public MyCardResponse toMyCardResponse(CardEntity card) {
-        return new MyCardResponse(
+    public UserCardResponse toUserCardResponse(CardEntity card) {
+        return new UserCardResponse(
                 card.getId(),
                 mask(card.getPanLast4()),
                 card.getHolderName(),

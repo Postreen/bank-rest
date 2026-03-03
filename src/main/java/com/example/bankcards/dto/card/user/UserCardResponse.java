@@ -2,7 +2,7 @@ package com.example.bankcards.dto.card.user;
 
 import java.math.BigDecimal;
 
-public record MyCardResponse(
+public record UserCardResponse(
      Long id,
      String maskedPan,
      String holderName,

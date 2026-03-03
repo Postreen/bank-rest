@@ -1,9 +1,9 @@
-package com.example.bankcards.controller;
+package com.example.bankcards.controller.admin;
 
 import com.example.bankcards.dto.card.admin.AdminUserResponse;
 import com.example.bankcards.dto.card.admin.CreateUserRequest;
 import com.example.bankcards.dto.card.admin.UpdateUserRequest;
-import com.example.bankcards.service.user.AdminUserService;
+import com.example.bankcards.service.admin.AdminUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -31,12 +31,12 @@ public class AdminUserController {
     }
 
     @PatchMapping("/{id}")
-    public AdminUserResponse updateUser(@PathVariable long id, @RequestBody UpdateUserRequest req) {
+    public AdminUserResponse updateUser(@PathVariable long id, @RequestBody @Valid UpdateUserRequest req) {
         return adminUserService.updateUser(id, req);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable long id) {
-        adminUserService.deleteUser(id);
+        adminUserService.deleteUserById(id);
     }
 }

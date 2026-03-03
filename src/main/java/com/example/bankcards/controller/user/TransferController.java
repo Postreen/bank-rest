@@ -1,4 +1,4 @@
-package com.example.bankcards.controller;
+package com.example.bankcards.controller.user;
 
 import com.example.bankcards.dto.card.user.TransferRequest;
 import com.example.bankcards.dto.card.user.TransferResponse;

@@ -1,10 +1,10 @@
-package com.example.bankcards.controller;
+package com.example.bankcards.controller.user;
 
 import com.example.bankcards.dto.card.user.BalanceCardResponse;
-import com.example.bankcards.dto.card.user.MyCardResponse;
+import com.example.bankcards.dto.card.user.UserCardResponse;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.security.CurrentUser;
-import com.example.bankcards.service.card.MyCardService;
+import com.example.bankcards.service.user.UserCardService;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -15,29 +15,29 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/cards")
 @RequiredArgsConstructor
-public class MyCardsController {
+public class UserCardsController {
 
-    private final MyCardService myCardService;
+    private final UserCardService userCardService;
     private final CurrentUser currentUser;
 
     @GetMapping
-    public Page<MyCardResponse> getAllMyCards(
+    public Page<UserCardResponse> getAllMyCards(
             @RequestParam(required = false) CardStatus status,
             @RequestParam(required = false) String last4,
             @ParameterObject Pageable pageable,
             Authentication authentication
     ) {
         long userId = currentUser.require(authentication).userId();
-        return myCardService.getAllMyCards(userId, status, last4, pageable);
+        return userCardService.getAllOwnedCards(userId, status, last4, pageable);
     }
 
     @GetMapping("/{id}")
-    public MyCardResponse getMyCard(
+    public UserCardResponse getMyCard(
             @PathVariable long id,
             Authentication authentication
     ) {
         long userId = currentUser.require(authentication).userId();
-        return myCardService.getMyCard(userId, id);
+        return userCardService.getOwnedCard(id, userId);
     }
 
     @GetMapping("/{id}/balance")
@@ -46,15 +46,15 @@ public class MyCardsController {
             Authentication authentication
     ) {
         long userId = currentUser.require(authentication).userId();
-        return myCardService.getCardBalance(userId, id);
+        return userCardService.getCardBalance(id, userId);
     }
 
     @PostMapping("/{id}/block-request")
-    public MyCardResponse requestCardBlock(
+    public UserCardResponse requestCardBlock(
             @PathVariable long id,
             Authentication authentication
     ) {
         long userId = currentUser.require(authentication).userId();
-        return myCardService.requestCardBlock(userId, id);
+        return userCardService.requestCardBlock(id, userId);
     }
 }

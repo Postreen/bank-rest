@@ -1,4 +1,4 @@
-package com.example.bankcards.controller;
+package com.example.bankcards.controller.user;
 
 import com.example.bankcards.dto.auth.LoginRequest;
 import com.example.bankcards.dto.auth.LoginResponse;
