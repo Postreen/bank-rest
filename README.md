@@ -1,105 +1,69 @@
-<h1>🚀 Разработка Системы Управления Банковскими Картами</h1>
+# Bank REST
 
-<h2>📁 Стартовая структура</h2>
-  <p>
-    Проектная структура с директориями и описательными файлами (<code>README Controller.md</code>, <code>README Service.md</code> и т.д.) уже подготовлена.<br />
-    Все реализации нужно добавлять <strong>в соответствующие директории</strong>.
-  </p>
-  <p>
-    После завершения разработки <strong>временные README-файлы нужно удалить</strong>, чтобы они не попадали в итоговую сборку.
-  </p>
-  
-<h2>📝 Описание задачи</h2>
-  <p>Разработать backend-приложение на Java (Spring Boot) для управления банковскими картами:</p>
-  <ul>
-    <li>Создание и управление картами</li>
-    <li>Просмотр карт</li>
-    <li>Переводы между своими картами</li>
-  </ul>
+Backend сервис управления банковскими картами на Spring Boot 3 / Java 17.
 
-<h2>💳 Атрибуты карты</h2>
-  <ul>
-    <li>Номер карты (зашифрован, отображается маской: <code>**** **** **** 1234</code>)</li>
-    <li>Владелец</li>
-    <li>Срок действия</li>
-    <li>Статус: Активна, Заблокирована, Истек срок</li>
-    <li>Баланс</li>
-  </ul>
+## Стек
+- Spring Boot, Spring Security, JWT
+- Spring Data JPA
+- PostgreSQL
+- Liquibase
+- OpenAPI/Swagger
 
-<h2>🧾 Требования</h2>
+## Основные возможности
+- Аутентификация: `POST /auth/login`
+- ADMIN:
+    - Управление пользователями: `/admin/users/**`
+    - Управление картами: `/admin/cards/**`
+- USER:
+    - Просмотр своих карт: `GET /cards` (+пагинация/фильтры)
+    - Просмотр карты/баланса: `GET /cards/{id}`, `GET /cards/{id}/balance`
+    - Запрос блокировки карты: `POST /cards/{id}/block-request`
+    - Перевод между своими картами: `POST /transfers`
 
-<h3>✅ Аутентификация и авторизация</h3>
-  <ul>
-    <li>Spring Security + JWT</li>
-    <li>Роли: <code>ADMIN</code> и <code>USER</code></li>
-  </ul>
+## Безопасность
+- JWT Bearer токены
+- Роли `ADMIN` и `USER`
+- Номер карты хранится в БД в зашифрованном виде (AES/GCM)
+- В API номер карты всегда возвращается только в маске: `**** **** **** 1234`
 
-<h3>✅ Возможности</h3>
-<strong>Администратор:</strong>
-  <ul>
-    <li>Создаёт, блокирует, активирует, удаляет карты</li>
-    <li>Управляет пользователями</li>
-    <li>Видит все карты</li>
-  </ul>
+## Переменные окружения
+Обязательные:
+- `JWT_SECRET` - минимум 32 символа
+- `CARD_CRYPTO_KEY` - ровно 32 символа
 
-<strong>Пользователь:</strong>
-  <ul>
-    <li>Просматривает свои карты (поиск + пагинация)</li>
-    <li>Запрашивает блокировку карты</li>
-    <li>Делает переводы между своими картами</li>
-    <li>Смотрит баланс</li>
-  </ul>
+Для профиля `dev`:
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`
 
-<h3>✅ API</h3>
-  <ul>
-    <li>CRUD для карт</li>
-    <li>Переводы между своими картами</li>
-    <li>Фильтрация и постраничная выдача</li>
-    <li>Валидация и сообщения об ошибках</li>
-  </ul>
+## Быстрый запуск (Docker Compose)
+```bash
+  docker compose up --build
+```
 
-<h3>✅ Безопасность</h3>
-  <ul>
-    <li>Шифрование данных</li>
-    <li>Ролевой доступ</li>
-    <li>Маскирование номеров карт</li>
-  </ul>
+Сервис:
+- API: `http://localhost:8080`
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 
-<h3>✅ Работа с БД</h3>
-  <ul>
-    <li>PostgreSQL или MySQL</li>
-    <li>Миграции через Liquibase (<code>src/main/resources/db/migration</code>)</li>
-  </ul>
+## Локальный запуск
+1. Поднимите PostgreSQL.
+2. Экспортируйте переменные окружения.
+3. Запустите приложение:
+```bash
+  ./gradlew bootRun --args="--spring.profiles.active=dev"
+```
 
-<h3>✅ Документация</h3>
-  <ul>
-    <li>Swagger UI / OpenAPI — <code>docs/openapi.yaml</code></li>
-    <li><code>README.md</code> с инструкцией запуска</li>
-  </ul>
+## Тесты
 
-<h3>✅ Развёртывание и тестирование</h3>
-  <ul>
-    <li>Docker Compose для dev-среды</li>
-    <li>Liquibase миграции</li>
-    <li>Юнит-тесты ключевой бизнес-логики</li>
-  </ul>
+Запустить все тесты
 
-<h2>📊 Оценка</h2>
-  <ul>
-    <li>Соответствие требованиям</li>
-    <li>Чистота архитектуры и кода</li>
-    <li>Безопасность</li>
-    <li>Обработка ошибок</li>
-    <li>Покрытие тестами</li>
-    <li>ООП и уровни абстракции</li>
-  </ul>
+```bash
+  ./gradlew test
+```
 
-<h2>💡 Технологии</h2>
-  <p>
-    Java 17+, Spring Boot, Spring Security, Spring Data JPA, PostgreSQL/MySQL, Liquibase, Docker, JWT, Swagger (OpenAPI)
-  </p>
+## Миграции
+- Master changelog: `src/main/resources/db/changelog/db.changelog-master.yaml`
+- Миграции: `src/main/resources/db/migration`
 
-<h2> 📤 Формат сдачи</h2>
-<p>
-Весь код и изменения принимаются только через git-репозиторий с открытым доступом к проекту. Отправка файлов в любом виде не принимается.
-  </p>
+## OpenAPI
+Файл спецификации: `docs/openapi.yaml`.
