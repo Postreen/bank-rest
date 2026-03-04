@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-card-status-alignment
+      author: codex
+      changes:
+        - update:
+            tableName: cards
+            columns:
+              - column:
+                  name: status
+                  value: BLOCKED
+            where: status = 'BLOCK_REQUESTED'
+        - update:
+            tableName: cards
+            columns:
+              - column:
+                  name: status
+                  value: BLOCKED
+            where: status = 'DELETED'
+        - createIndex:
+            tableName: cards
+            indexName: idx_cards_owner_status
+            columns:
+              - column:
+                  name: owner_id
+              - column:
+                  name: status

@@ -1,0 +1,128 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-init-users-cards
+      author: user
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password_hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: cards
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: owner_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: encrypted_pan
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: pan_hash
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: pan_last4
+                  type: varchar(4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: holder_name
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expiry_month
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expiry_year
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: balance
+                  type: numeric(19,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: cards
+            columnNames: pan_hash
+            constraintName: uk_cards_pan_hash
+
+        - addForeignKeyConstraint:
+            baseTableName: cards
+            baseColumnNames: owner_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_cards_owner
+
+        - createIndex:
+            tableName: cards
+            indexName: idx_cards_owner_id
+            columns:
+              - column:
+                  name: owner_id
+
+        - createIndex:
+            tableName: cards
+            indexName: idx_cards_last4
+            columns:
+              - column:
+                  name: pan_last4

@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: db/migration/001_init_users_cards.yaml
+  - include:
+      file: db/migration/002_card_status_alignment.yaml

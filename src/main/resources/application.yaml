@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: bank-rest
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+security:
+  jwt:
+    issuer: bank-rest
+    ttl-seconds: 3600
+    secret: ${JWT_SECRET}
+  card-crypto:
+    key: ${CARD_CRYPTO_KEY}
